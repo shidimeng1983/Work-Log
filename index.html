@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>生物试剂销售管理工作台</title>
+    <!-- Mobile Optimization -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="工作记事本">
+    <link rel="apple-touch-icon" href="icon.png">
+    <style>
+        :root {
+            /* Palette: Modern & Minimalist */
+            --primary-bg: #F7F9FC;
+            --sidebar-bg: #ffffff;
+            --sidebar-text: #64748b;
+            --sidebar-active-bg: #e2e8f0;
+            --sidebar-active-text: #0f172a;
+
+            --accent-color: #3b82f6;
+            /* Modern Blue */
+            --accent-hover: #2563eb;
+
+            --text-main: #1e293b;
+            --text-secondary: #64748b;
+
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+
+            --radius-md: 12px;
+            --radius-sm: 8px;
+
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --sidebar-width: 240px;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            line-height: 1.4;
+            /* Reduced from 1.6 */
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 12px;
+            /* Reduced padding */
+            box-sizing: border-box;
+        }
+
+        .app-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            /* Reduced from 40px */
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+        }
+
+        .nav-item {
+            padding: 10px 12px;
+            /* Reduced padding */
+            margin-bottom: 2px;
+            /* Reduced margin */
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            color: var(--sidebar-text);
+            font-size: 14px;
+            font-weight: 500;
+            border-left: none;
+            /* Removed heavy border */
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover {
+            background-color: var(--primary-bg);
+            color: var(--text-main);
+        }
+
+        .nav-item.active {
+            background-color: var(--sidebar-active-bg);
+            color: var(--accent-color);
+            /* Highlight text instead of border */
+            font-weight: 600;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            flex: 1;
+            padding: 20px 24px;
+            /* Reduced padding */
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            max-width: 1200px;
+            /* Limit width for reading ease */
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            /* Reduced margin */
+        }
+
+        #module-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+        }
+
+        #current-date {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* --- Module Sections --- */
+        .module-section {
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            /* Reduced gap */
+            height: 100%;
+        }
+
+        .module-section.active {
+            display: flex;
+        }
+
+        /* --- Cards (Unified Style) --- */
+        .top-reminders,
+        .input-area,
+        .history-area,
+        .module-section#search {
+            background: var(--card-bg);
+            padding: 16px;
+            /* Reduced padding */
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Remove colored borders, use badges/header colors if needed. But minimal is better. */
+        .top-reminders {
+            border-left: none;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            /* Reduced margin */
+            color: var(--text-main);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 13px;
+        }
+
+        /* --- Lists --- */
+        .reminder-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .reminder-list li {
+            padding: 6px 0;
+            /* Reduced padding */
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .reminder-list li:hover {
+            background-color: #f8fafc;
+            padding-left: 8px;
+            /* subtle nudge */
+            margin-left: -8px;
+            margin-right: -8px;
+            padding-right: 8px;
+            border-radius: 4px;
+        }
+
+        .reminder-list li:last-child {
+            border-bottom: none;
+        }
+
+        .reminder-list li input[type="checkbox"] {
+            margin-right: 12px;
+            accent-color: var(--accent-color);
+            width: 16px;
+            height: 16px;
+        }
+
+        /* --- Forms --- */
+        textarea,
+        input[type="text"],
+        input[type="date"],
+        .main-search-input {
+            width: 100%;
+            padding: 12px 16px;
+            box-sizing: border-box;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            background-color: #f8fafc;
+            transition: all 0.2s;
+            font-family: inherit;
+            resize: vertical;
+            /* Allow vertical resize only */
+        }
+
+        textarea:focus,
+        input:focus,
+        .main-search-input:focus {
+            outline: none;
+            background-color: #fff;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        textarea {
+            height: 120px;
+            margin-bottom: 16px;
+        }
+
+        /* --- Buttons --- */
+        .action-bar {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            /* Right align buttons */
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-add-reminder {
+            background-color: #f59e0b;
+            color: white;
+        }
+
+        /* Amber 500 */
+        .btn-save-log {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        /* Blue 500 */
+        .btn-print {
+            background-color: #64748b;
+            color: white;
+        }
+
+        /* Slate 500 */
+
+        /* --- History --- */
+        .history-area {
+            flex: 1;
+            overflow-y: auto;
+            margin-top: 0;
+            border-top: none;
+        }
+
+        /* removed margin-top as it's flex gap now */
+
+        .history-item {
+            padding: 10px 0;
+            /* Reduced padding */
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-time {
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            /* Reduced margin */
+        }
+
+        .history-content {
+            white-space: pre-wrap;
+            margin-bottom: 6px;
+            /* Reduced margin */
+            color: #334155;
+            line-height: 1.5;
+            /* Slightly tighter than 1.6 */
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-mini {
+            padding: 4px 10px;
+            font-size: 11px;
+            border-radius: 4px;
+        }
+
+        .btn-quote {
+            background-color: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-quote:hover {
+            background-color: #cbd5e1;
+            color: #1e293b;
+        }
+
+        .btn-delete {
+            background-color: #fee2e2;
+            color: #ef4444;
+        }
+
+        .btn-delete:hover {
+            background-color: #fecaca;
+        }
+
+        .btn-mini-print {
+            background-color: #f1f5f9;
+            color: #64748b;
+        }
+
+        .btn-mini-print:hover {
+            background-color: #e2e8f0;
+        }
+
+        /* --- Search Module --- */
+        #search {
+            background: transparent;
+            /* Wrapper is transparent, elements are cards if needed, or search page is special. Let's make search container transparent but results list handled. */
+            /* Actually, let's keep it consistent. The wrapper card is okay. */
+            box-shadow: none;
+            border: none;
+            padding: 0;
+            background: transparent;
+        }
+
+        .search-page-header {
+            margin-bottom: 24px;
+        }
+
+        .main-search-input {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 18px;
+            border-radius: 50px;
+            /* Pillow shape for search */
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .search-group-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin: 24px 0 12px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .search-result-item {
+            background: #fff;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid #ccc;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .search-result-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .search-result-item.customer {
+            border-left-color: var(--accent-color);
+        }
+
+        .search-result-item.order {
+            border-left-color: #eab308;
+        }
+
+        /* Yellow 500 */
+        .search-result-item.payment {
+            border-left-color: #10b981;
+        }
+
+        /* Emerald 500 */
+
+        /* --- Calendar Modal --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            /* Slate 900 with opacity */
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            width: 440px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            animation: modalFadeIn 0.2s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: var(--text-main);
+        }
+
+        .modal-actions {
+            margin-top: 32px;
+        }
+
+        .btn-cancel {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .btn-cancel:hover {
+            background: #e2e8f0;
+        }
+
+        /* --- Print --- */
+        #print-container {
+            display: none;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #print-container,
+            #print-container * {
+                visibility: visible;
+                display: block;
+            }
+
+            #print-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 80mm;
+                height: 100mm;
+                font-size: 10.5pt;
+                font-family: "SimHei", "黑体", sans-serif;
+                line-height: 1.4;
+                padding: 5mm;
+                box-sizing: border-box;
+                border: 1px dashed #000;
+                overflow: hidden;
+            }
+
+            @page {
+                size: 80mm 100mm;
+                margin: 0;
+            }
+        }
+
+        /* --- Mobile Responsive --- */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                height: auto;
+                overflow: auto;
+            }
+
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                overflow-x: auto;
+                padding: 12px 16px;
+                border-bottom: 1px solid var(--border-color);
+                border-right: none;
+                flex-shrink: 0;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .app-title {
+                margin-bottom: 0;
+                font-size: 16px;
+                margin-right: 12px;
+                white-space: nowrap;
+            }
+
+            .nav-item {
+                padding: 8px 12px;
+                margin-bottom: 0;
+                white-space: nowrap;
+                font-size: 13px;
+            }
+
+            .main-content {
+                padding: 16px;
+                overflow: visible;
+                height: auto;
+            }
+
+            .header-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .modal-content {
+                width: 90%;
+                margin: 20px;
+            }
+
+            textarea {
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <div class="app-title">工作记事本</div>
+        <div class="nav-item active" onclick="switchTab('customer')">👥 客户沟通</div>
+        <div class="nav-item" onclick="switchTab('order')">📦 订发货管理</div>
+        <div class="nav-item" onclick="switchTab('payment')">💰 收付款管理</div>
+        <div class="nav-item" onclick="switchTab('search')">🔍 全局搜索</div>
+    </div>
+
+    <div class="main-content">
+        <div class="header-info">
+            <span id="module-title">客户沟通记录</span>
+            <!-- Search bar removed from here -->
+            <span id="current-date"></span>
+        </div>
+
+        <div id="customer" class="module-section active">
+            <div class="top-reminders">
+                <div class="section-title">📅 今日需跟进 / 提醒</div>
+                <ul class="reminder-list" id="customer-reminders">
+                </ul>
+            </div>
+
+            <div class="input-area">
+                <div class="section-title">✏️ 记事录入</div>
+                <textarea id="customer-input" placeholder="输入客户咨询内容、报价详情或回访记录..."></textarea>
+                <div class="action-bar">
+                    <button class="btn-add-reminder" onclick="addReminder('customer')">设为提醒事项</button>
+                    <button class="btn-print" onclick="printContent('customer')">打印</button>
+                    <button class="btn-save-log" onclick="saveLog('customer')">保存到历史</button>
+                </div>
+            </div>
+
+            <div class="history-area">
+                <div class="section-title">📜 历史记录</div>
+                <div id="customer-history"></div>
+            </div>
+        </div>
+
+        <div id="order" class="module-section">
+            <div class="top-reminders" style="border-left-color: #f1c40f;">
+                <div class="section-title">🚛 今日待发货 / 待订货</div>
+                <ul class="reminder-list" id="order-reminders"></ul>
+            </div>
+            <div class="input-area">
+                <div class="section-title">✏️ 物流/订单录入</div>
+                <textarea id="order-input" placeholder="输入货号、物流单号、厂家订货确认号..."></textarea>
+                <div class="action-bar">
+                    <button class="btn-add-reminder" onclick="addReminder('order')">设为提醒事项</button>
+                    <button class="btn-print" onclick="printContent('order')">打印</button>
+                    <button class="btn-save-log" onclick="saveLog('order')">保存到历史</button>
+                </div>
+            </div>
+            <div class="history-area">
+                <div class="section-title">📜 历史记录</div>
+                <div id="order-history"></div>
+            </div>
+        </div>
+
+        <div id="payment" class="module-section">
+            <div class="top-reminders" style="border-left-color: #2ecc71;">
+                <div class="section-title">💴 今日待催款 / 待付款</div>
+                <ul class="reminder-list" id="payment-reminders"></ul>
+            </div>
+            <div class="input-area">
+                <div class="section-title">✏️ 财务记录录入</div>
+                <textarea id="payment-input" placeholder="输入发票号、回款金额、报账截止日期..."></textarea>
+                <div class="action-bar">
+                    <button class="btn-add-reminder" onclick="addReminder('payment')">设为提醒事项</button>
+                    <button class="btn-print" onclick="printContent('payment')">打印</button>
+                    <button class="btn-save-log" onclick="saveLog('payment')">保存到历史</button>
+                </div>
+            </div>
+            <div class="history-area">
+                <div class="section-title">📜 历史记录</div>
+                <div id="payment-history"></div>
+            </div>
+        </div>
+
+        <div id="search" class="module-section">
+            <div class="search-page-header">
+                <input type="text" id="main-search-input" class="main-search-input" placeholder="输入关键词搜索所有记录..."
+                    oninput="performGlobalSearch()">
+            </div>
+            <div id="search-results-container" class="search-results-container">
+                <!-- Results rendered here -->
+            </div>
+        </div>
+    </div>
+
+    <div id="print-container"></div>
+
+    <!-- Calendar Modal -->
+    <div id="calendar-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title">📅 添加到日历</div>
+            <div class="form-group">
+                <label>日期</label>
+                <input type="date" id="cal-date">
+            </div>
+            <div class="form-group">
+                <label>备注内容</label>
+                <textarea id="cal-remark" rows="3"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeCalendarModal()">取消</button>
+                <button class="btn-confirm" onclick="downloadICS()">添加到日历 (导出ICS)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Calendar Modal Logic
+        let currentReminderText = ''; // To store the text of the reminder being added to calendar
+
+        function openCalendarModal(reminderText) {
+            currentReminderText = reminderText;
+            document.getElementById('cal-remark').value = reminderText;
+            // Set default date to today
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months start at 0!
+            const dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('cal-date').value = `${yyyy}-${mm}-${dd}`;
+
+            document.getElementById('calendar-modal').style.display = 'flex';
+        }
+
+        function closeCalendarModal() {
+            document.getElementById('calendar-modal').style.display = 'none';
+        }
+
+        function downloadICS() {
+            const date = document.getElementById('cal-date').value;
+            const remark = document.getElementById('cal-remark').value;
+
+            if (!date) {
+                alert('请选择日期！');
+                return;
+            }
+
+            const eventDate = new Date(date);
+            const year = eventDate.getFullYear();
+            const month = String(eventDate.getMonth() + 1).padStart(2, '0');
+            const day = String(eventDate.getDate()).padStart(2, '0');
+
+            const eventStart = `${year}${month}${day}T090000`; // 9 AM
+            const eventEnd = `${year}${month}${day}T100000`; // 10 AM
+
+            const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//WorkRecordApp//CN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:${new Date().getTime()}@workrecordapp
+DTSTAMP:${new Date().toISOString().replace(/[-:]|\.\d{3}/g, '')}Z
+DTSTART:${eventStart}
+DTEND:${eventEnd}
+SUMMARY:${remark || '提醒事项'}
+DESCRIPTION:${remark || '提醒事项'}
+END:VEVENT
+END:VCALENDAR`;
+
+            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `reminder_${date}.ics`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            closeCalendarModal();
+            // User Guidance
+            setTimeout(() => {
+                alert('📅 日历文件已生成并下载！\n\n请在浏览器下载栏中点击打开该文件 (reminder_' + date + '.ics)，系统将自动询问是否导入到您的日历。');
+            }, 500);
+        }
+
+        // 初始化日期
+        function updateDate() {
+            const now = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            document.getElementById('current-date').innerText = now.toLocaleDateString('zh-CN', options);
+        }
+        updateDate();
+
+        // 模块切换逻辑
+        function switchTab(moduleId) {
+            // 隐藏所有模块
+            document.querySelectorAll('.module-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            // 显示选中模块
+            document.getElementById(moduleId).classList.add('active');
+
+            // 更新导航样式
+            const navIndex = { 'customer': 0, 'order': 1, 'payment': 2, 'search': 3 };
+            document.querySelectorAll('.nav-item')[navIndex[moduleId]].classList.add('active');
+
+            // 更新标题
+            const titles = { 'customer': '客户沟通记录', 'order': '订发货管理', 'payment': '收付款管理', 'search': '全记录搜索' };
+            document.getElementById('module-title').innerText = titles[moduleId];
+
+            // 如果切回普通模块，重新渲染历史（取消之前的过滤逻辑，因为搜索现在独立了）
+            if (moduleId !== 'search') {
+                renderHistory(moduleId);
+            } else {
+                // 如果切到搜索模块，自动聚焦
+                setTimeout(() => document.getElementById('main-search-input').focus(), 100);
+            }
+        }
+
+        // 数据加载与保存 (使用LocalStorage)
+        function loadData() {
+            ['customer', 'order', 'payment'].forEach(type => {
+                renderHistory(type);
+                renderReminders(type);
+            });
+        }
+
+        // 1. 添加提醒 (显示在上方)
+        function addReminder(type) {
+            const input = document.getElementById(type + '-input');
+            const text = input.value.trim();
+            if (!text) return alert('请输入内容！');
+
+            const reminders = JSON.parse(localStorage.getItem(type + '_reminders') || '[]');
+            reminders.push({ text: text, done: false, date: new Date().toLocaleDateString() });
+            localStorage.setItem(type + '_reminders', JSON.stringify(reminders));
+
+            renderReminders(type);
+            input.value = ''; // 清空输入框
+        }
+
+        function renderReminders(type) {
+            const list = document.getElementById(type + '-reminders');
+            const data = JSON.parse(localStorage.getItem(type + '_reminders') || '[]');
+            list.innerHTML = '';
+
+            data.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleReminder('${type}', ${index})">
+                    <span style="${item.done ? 'text-decoration: line-through; color: #aaa;' : ''}">${item.text}</span>
+                    <span style="font-size:10.5pt; color:#ccc; margin-left:auto;">${item.date}</span>
+                    <span style="cursor:pointer; margin-left:10px; font-size:13px; color:var(--accent-color);" onclick="openCalendarModal('${item.text.replace(/'/g, "\\'")}'); event.stopPropagation();">日历</span>
+                    <span style="cursor:pointer; margin-left:10px; font-size:13px; color:#e74c3c;" onclick="deleteReminder('${type}', ${index})">删除</span>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function toggleReminder(type, index) {
+            const reminders = JSON.parse(localStorage.getItem(type + '_reminders'));
+            reminders[index].done = !reminders[index].done;
+            localStorage.setItem(type + '_reminders', JSON.stringify(reminders));
+            renderReminders(type);
+        }
+
+        function deleteReminder(type, index) {
+            const reminders = JSON.parse(localStorage.getItem(type + '_reminders'));
+            reminders.splice(index, 1);
+            localStorage.setItem(type + '_reminders', JSON.stringify(reminders));
+            renderReminders(type);
+        }
+
+        // 2. 保存历史记录 (显示在下方)
+        function saveLog(type) {
+            const input = document.getElementById(type + '-input');
+            const text = input.value.trim();
+            if (!text) return alert('请输入内容！');
+
+            const logs = JSON.parse(localStorage.getItem(type + '_logs') || '[]');
+            const now = new Date();
+            logs.unshift({
+                text: text,
+                time: now.toLocaleString('zh-CN', { hour12: false })
+            });
+
+            localStorage.setItem(type + '_logs', JSON.stringify(logs));
+            renderHistory(type);
+            input.value = '';
+        }
+
+        function renderHistory(type) {
+            const container = document.getElementById(type + '-history');
+            // 移除旧的搜索过滤逻辑，现在全都在独立模块
+            // const searchTerm = document.getElementById('global-search').value.trim().toLowerCase();
+
+            container.innerHTML = '';
+
+            // 重新获取原始数据用于显示，这样能拿到正确的删除索引
+            const allLogs = JSON.parse(localStorage.getItem(type + '_logs') || '[]');
+
+            allLogs.forEach((log, realIndex) => {
+                // if (searchTerm && !log.text.toLowerCase().includes(searchTerm)) {
+                //     return; // 跳过不匹配的
+                // }
+
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `
+                    <div class="history-time">${log.time}</div>
+                    <div class="history-content">${log.text}</div>
+                    <div class="history-actions">
+                        <button class="btn-mini btn-quote" onclick="quoteLog('${type}', ${realIndex})">引用</button>
+                        <button class="btn-mini btn-delete" onclick="deleteLog('${type}', ${realIndex})">删除</button>
+                        <button class="btn-mini btn-mini-print" onclick="printOneLog('${log.text.replace(/'/g, "\\'")}', '${log.time}')">打印</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+
+
+        // --- Global Search Module Logic ---
+        function performGlobalSearch() {
+            const query = document.getElementById('main-search-input').value.trim().toLowerCase();
+            const container = document.getElementById('search-results-container');
+            container.innerHTML = '';
+
+            if (!query) {
+                container.innerHTML = '<div style="text-align:center;color:#999;margin-top:20px;">请输入关键词开始搜索</div>';
+                return;
+            }
+
+            const modules = [
+                { id: 'customer', name: '👥 客户沟通' },
+                { id: 'order', name: '📦 订发货' },
+                { id: 'payment', name: '💰 收付款' }
+            ];
+
+            let foundAny = false;
+
+            modules.forEach(mod => {
+                const logs = JSON.parse(localStorage.getItem(mod.id + '_logs') || '[]');
+                // 搜索匹配
+                const matches = logs.map((log, index) => ({ ...log, originalIndex: index })) // 保留原始索引
+                    .filter(log => log.text.toLowerCase().includes(query));
+
+                if (matches.length > 0) {
+                    foundAny = true;
+                    // Render Group Header
+                    const groupTitle = document.createElement('div');
+                    groupTitle.className = 'search-group-title';
+                    groupTitle.innerText = mod.name;
+                    container.appendChild(groupTitle);
+
+                    // Render Items
+                    matches.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = `search-result-item ${mod.id}`;
+                        // 点击整个条目跳转去查看 (暂定只要点击非按钮区域)
+                        div.innerHTML = `
+                            <div class="history-time">${item.time}</div>
+                            <div class="history-content">${item.text}</div>
+                            <div class="history-actions">
+                                <button class="btn-mini btn-quote" onclick="jumpAndQuote('${mod.id}', ${item.originalIndex}); event.stopPropagation();">引用并编辑</button>
+                                <button class="btn-mini btn-delete" onclick="deleteFromSearch('${mod.id}', ${item.originalIndex}); event.stopPropagation();">删除</button>
+                                <button class="btn-mini btn-mini-print" onclick="printOneLog('${item.text.replace(/'/g, "\\'")}', '${item.time}'); event.stopPropagation();">打印</button>
+                            </div>
+                        `;
+                        div.onclick = () => switchTab(mod.id); // 简单跳转
+                        container.appendChild(div);
+                    });
+                }
+            });
+
+            if (!foundAny) {
+                container.innerHTML = '<div style="text-align:center;color:#999;margin-top:20px;">未找到匹配记录</div>';
+            }
+        }
+
+        function jumpAndQuote(type, index) {
+            // 切换到对应模块
+            switchTab(type);
+            // 调用引用逻辑
+            quoteLog(type, index);
+        }
+
+        function deleteFromSearch(type, index) {
+            if (!confirm('确定从历史记录中删除这条吗？')) return;
+
+            const logs = JSON.parse(localStorage.getItem(type + '_logs') || '[]');
+            logs.splice(index, 1); // 这里的index必须是原始数据的index
+            localStorage.setItem(type + '_logs', JSON.stringify(logs));
+
+            // 重新搜索刷新页面
+            performGlobalSearch();
+
+            // 如果这时候切回去，原列表也应该更新(renderHistory每次切换都会调)
+        }
+
+        // 旧的handleSearch不再需要了
+        // function handleSearch() { ... }
+
+        function quoteLog(type, index) {
+            const logs = JSON.parse(localStorage.getItem(type + '_logs') || '[]');
+            const log = logs[index];
+            if (log) {
+                const input = document.getElementById(type + '-input');
+                input.value = log.text; // 或者 += 追加
+            }
+        }
+
+        function deleteLog(type, index) {
+            if (!confirm('确定删除这条记录吗？')) return;
+            const logs = JSON.parse(localStorage.getItem(type + '_logs') || '[]');
+            logs.splice(index, 1);
+            localStorage.setItem(type + '_logs', JSON.stringify(logs));
+            renderHistory(type);
+        }
+
+        function printOneLog(text, time) {
+            const printDiv = document.getElementById('print-container');
+            printDiv.innerHTML = `
+                <div style="font-weight:bold; border-bottom:2px solid black; margin-bottom:5px;">工作备忘单</div>
+                <div style="font-size: 9pt; margin-bottom: 10px;">记录时间: ${time}</div>
+                <div style="white-space: pre-wrap;">${text}</div>
+            `;
+            window.print();
+        }
+
+        // 3. 打印功能 (核心要求：80x100mm, 5号黑体)
+        function printContent(type) {
+            const input = document.getElementById(type + '-input');
+            const text = input.value.trim();
+
+            if (!text) return alert('输入框为空，无法打印。请先输入内容。');
+
+            const printDiv = document.getElementById('print-container');
+            const date = new Date().toLocaleString('zh-CN');
+
+            // 构造打印内容
+            printDiv.innerHTML = `
+                <div style="font-weight:bold; border-bottom:2px solid black; margin-bottom:5px;">工作备忘单</div>
+                <div style="font-size: 9pt; margin-bottom: 10px;">打印时间: ${date}</div>
+                <div style="white-space: pre-wrap;">${text}</div>
+            `;
+
+            window.print();
+        }
+
+        // 页面加载时读取数据
+        loadData();
+    </script>
+</body>
+
+</html>
